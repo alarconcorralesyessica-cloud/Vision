@@ -16,21 +16,21 @@
   }
 
   body {
-    background: var(--cream);
+    background: transparent; /* Fondo transparente fuera del recuadro */
     font-family: 'Jost', sans-serif;
     color: var(--ink);
     padding: 20px;
     margin: 0;
   }
 
-  /* ESTILOS DE LA SECCIÓN HIGHLIGHTS */
+  /* RECUADRO CON EL FONDO RESTRINGIDO AL BORDE */
   .highlights {
     max-width: 650px;
     margin: 0 auto;
     border: 1px solid var(--gold-line);
     padding: 18px;
     border-radius: 6px;
-    background: var(--cream);
+    background: var(--cream); /* EL FONDO SOLO VIVE DENTRO DE ESTE BORDE */
   }
 
   .box-title {
@@ -129,13 +129,11 @@
 </head>
 <body>
 
-<!-- HTML DE LA SECCIÓN -->
 <div class="highlights">
   <div class="box-title">✦ MY HIGHLIGHTS OF THE YEAR</div>
   <div class="highlights-grid" id="highlightsGrid"></div>
 </div>
 
-<!-- VENTANA MODAL PARA SUBIR FOTO -->
 <div class="modal-overlay" id="highlightModal">
   <div class="modal">
     <h3>Edit highlight</h3>
@@ -209,7 +207,6 @@ document.getElementById('highlightClearBtn').addEventListener('click', () => {
 
 document.getElementById('highlightCancelBtn').addEventListener('click', closeHighlightModal);
 
-// Render inicial
 renderHighlights();
 </script>
 </body>
