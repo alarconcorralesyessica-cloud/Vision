@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Highlights</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f1e7;
+    --cream-2: #efe8d9;
+    --ink: #2f2a22;
+    --ink-soft: #5c5546;
+    --gold: #a9895f;
+    --gold-line: #d8c9a8;
+  }
+
+  body {
+    background: var(--cream);
+    font-family: 'Jost', sans-serif;
+    color: var(--ink);
+    padding: 20px;
+    margin: 0;
+  }
+
+  /* ESTILOS DE LA SECCIÓN HIGHLIGHTS */
+  .highlights {
+    max-width: 650px;
+    margin: 0 auto;
+    border: 1px solid var(--gold-line);
+    padding: 18px;
+    border-radius: 6px;
+    background: var(--cream);
+  }
+
+  .box-title {
+    font-size: 9px;
+    letter-spacing: 1.6px;
+    color: var(--ink-soft);
+    margin-bottom: 11px;
+  }
+
+  .highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+  }
+
+  @media (max-width: 520px) { 
+    .highlights-grid { grid-template-columns: repeat(2, 1fr); } 
+  }
+
+  .highlight-item { text-align: center; }
+  .highlight-item .hi-icon { font-size: 15px; color: var(--gold); }
+  .highlight-item .hi-text {
+    font-size: 10px;
+    color: var(--ink-soft);
+    margin: 6px 0 7px;
+    min-height: 26px;
+  }
+
+  .hi-circle {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    margin: 0 auto;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    border: 1px solid var(--gold-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-soft);
+    font-size: 9px;
+    background-color: var(--cream-2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hi-circle:hover::after {
+    content: "edit";
+    position: absolute; 
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    color: #fff;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-size: 9px;
+  }
+
+  /* MODAL PARA CAMBIAR LA FOTO */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(30,26,20,0.55);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 50; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--cream);
+    border-radius: 8px;
+    border: 1px solid var(--gold-line);
+    width: 100%; max-width: 320px;
+    padding: 18px;
+  }
+
+  .modal h3 { margin: 0 0 11px; font-size: 15px; }
+  .modal label { display: block; font-size: 10px; color: var(--ink-soft); margin: 9px 0 4px; }
+  .modal input {
+    width: 100%; padding: 7px 8px;
+    border: 1px solid var(--gold-line);
+    border-radius: 5px; font-size: 12px;
+    box-sizing: border-box;
+  }
+
+  .modal-actions { display: flex; gap: 6px; margin-top: 15px; }
+  .btn {
+    border: none; border-radius: 5px; padding: 7px 12px;
+    font-size: 11px; cursor: pointer;
+  }
+  .btn-primary { background: var(--ink); color: #fff; }
+  .btn-secondary { background: var(--cream-2); color: var(--ink); border: 1px solid var(--gold-line); }
+  .btn-danger { background: #8a3d3d; color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- HTML DE LA SECCIÓN -->
+<div class="highlights">
+  <div class="box-title">✦ MY HIGHLIGHTS OF THE YEAR</div>
+  <div class="highlights-grid" id="highlightsGrid"></div>
+</div>
+
+<!-- VENTANA MODAL PARA SUBIR FOTO -->
+<div class="modal-overlay" id="highlightModal">
+  <div class="modal">
+    <h3>Edit highlight</h3>
+    <label>Image link (URL)</label>
+    <input type="text" id="highlightUrlInput" placeholder="https://...">
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="highlightSaveBtn">Save</button>
+      <button class="btn btn-danger" id="highlightClearBtn">Remove</button>
+      <button class="btn btn-secondary" id="highlightCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const HIGHLIGHT_DEFS = [
+  { icon:'☀', text:'Moments that made me happy' },
+  { icon:'❧', text:'Lessons that changed me' },
+  { icon:'⚑', text:'Challenges I overcame' },
+  { icon:'☼', text:'Small wins that helped me grow' },
+  { icon:'♡', text:'People who marked this year' },
+];
+
+let highlightData = Array.from({length: HIGHLIGHT_DEFS.length}, () => ({url: ''}));
+let editingHighlightIdx = null;
+
+function renderHighlights(){
+  const el = document.getElementById('highlightsGrid');
+  el.innerHTML = '';
+  HIGHLIGHT_DEFS.forEach((def, idx) => {
+    const data = highlightData[idx] || {url:''};
+    const wrap = document.createElement('div');
+    wrap.className = 'highlight-item';
+    wrap.innerHTML = `
+      <div class="hi-icon">${def.icon}</div>
+      <div class="hi-text">${def.text}</div>
+      <div class="hi-circle" data-idx="${idx}" style="${data.url ? `background-image:url('${data.url}')` : ''}">${data.url ? '' : '+ photo'}</div>
+    `;
+    el.appendChild(wrap);
+  });
+
+  el.querySelectorAll('.hi-circle').forEach(circle => {
+    circle.addEventListener('click', () => openHighlightModal(parseInt(circle.dataset.idx)));
+  });
+}
+
+function openHighlightModal(idx){
+  editingHighlightIdx = idx;
+  document.getElementById('highlightUrlInput').value = (highlightData[idx] && highlightData[idx].url) || '';
+  document.getElementById('highlightModal').classList.add('open');
+}
+
+function closeHighlightModal(){
+  document.getElementById('highlightModal').classList.remove('open');
+  editingHighlightIdx = null;
+}
+
+document.getElementById('highlightSaveBtn').addEventListener('click', () => {
+  if(editingHighlightIdx === null) return;
+  const url = document.getElementById('highlightUrlInput').value.trim();
+  highlightData[editingHighlightIdx] = { url };
+  renderHighlights();
+  closeHighlightModal();
+});
+
+document.getElementById('highlightClearBtn').addEventListener('click', () => {
+  if(editingHighlightIdx === null) return;
+  highlightData[editingHighlightIdx] = { url:'' };
+  renderHighlights();
+  closeHighlightModal();
+});
+
+document.getElementById('highlightCancelBtn').addEventListener('click', closeHighlightModal);
+
+// Render inicial
+renderHighlights();
+</script>
+</body>
+</html>
